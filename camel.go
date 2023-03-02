@@ -27,6 +27,7 @@ package strcase
 
 import (
 	"strings"
+	"unicode"
 )
 
 // Converts a string to CamelCase
@@ -35,42 +36,51 @@ func toCamelInitCase(s string, initCase bool) string {
 	if s == "" {
 		return s
 	}
-	a, hasAcronym := uppercaseAcronym[s]
-	if hasAcronym {
-		s = a
-	}
 
+	size := len(s)
+
+	allCaps := true
+	for i := 0; i < size/2; i++ {
+		if unicode.IsLower(rune(s[i])) || unicode.IsLower(rune(s[size-i-1])) {
+			allCaps = false
+			break
+		}
+	}
 	n := strings.Builder{}
-	n.Grow(len(s))
+	n.Grow(size)
 	capNext := initCase
-	prevIsCap := false
-	for i, v := range []byte(s) {
-		vIsCap := v >= 'A' && v <= 'Z'
-		vIsLow := v >= 'a' && v <= 'z'
+	prevIsUpper := false
+	firstWordAcronymException := !initCase
+	for i, r := range s {
+		isUpper := unicode.IsUpper(r)
+		isLower := unicode.IsLower(r)
 		if capNext {
-			if vIsLow {
-				v += 'A'
-				v -= 'a'
+			if isLower {
+				r = unicode.ToUpper(r)
 			}
 		} else if i == 0 {
-			if vIsCap {
-				v += 'a'
-				v -= 'A'
+			if isUpper {
+				r = unicode.ToLower(r)
+			}else {
+				firstWordAcronymException = false
 			}
-		} else if prevIsCap && vIsCap && !hasAcronym {
-			v += 'a'
-			v -= 'A'
+		} else if (allCaps || firstWordAcronymException) && isUpper && prevIsUpper {
+			if !allCaps && firstWordAcronymException && unicode.IsLower(rune(s[i+1])) {
+				firstWordAcronymException = false
+			} else {
+				r = unicode.ToLower(r)
+			}
 		}
-		prevIsCap = vIsCap
+		prevIsUpper = isUpper
 
-		if vIsCap || vIsLow {
-			n.WriteByte(v)
+		if unicode.IsLetter(r) {
+			n.WriteRune(r)
 			capNext = false
-		} else if vIsNum := v >= '0' && v <= '9'; vIsNum {
-			n.WriteByte(v)
+		} else if unicode.IsNumber(r) {
+			n.WriteRune(r)
 			capNext = true
 		} else {
-			capNext = v == '_' || v == ' ' || v == '-' || v == '.'
+			capNext = true
 		}
 	}
 	return n.String()

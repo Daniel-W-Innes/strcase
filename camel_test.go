@@ -2,6 +2,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2015 Ian Coleman
+ * Copyright (c) 2023 Daniel Innes
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +29,7 @@ import (
 	"testing"
 )
 
-func toCamel(tb testing.TB) {
+func toPascal(tb testing.TB) {
 	cases := [][]string{
 		{"test_case", "TestCase"},
 		{"test.case", "TestCase"},
@@ -40,8 +41,43 @@ func toCamel(tb testing.TB) {
 		{"AnyKind of_string", "AnyKindOfString"},
 		{"odd-fix", "OddFix"},
 		{"numbers2And55with000", "Numbers2And55With000"},
-		{"ID", "Id"},
+		{"JSONData", "JSONData"},
+		{"userID", "UserID"},
 		{"CONSTANT_CASE", "ConstantCase"},
+	}
+	for _, i := range cases {
+		in := i[0]
+		out := i[1]
+		result := ToPascal(in)
+		if result != out {
+			tb.Errorf("%q (%q != %q)", in, result, out)
+		}
+	}
+}
+
+func TestToPascal(t *testing.T) {
+	toPascal(t)
+}
+
+func BenchmarkToPascal(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		toPascal(b)
+	}
+}
+
+func toCamel(tb testing.TB) {
+	cases := [][]string{
+		{"foo-bar", "fooBar"},
+		{"TestCase", "testCase"},
+		{"", ""},
+		{"AnyKind of_string", "anyKindOfString"},
+		{"AnyKind.of-string", "anyKindOfString"},
+		{"some string", "someString"},
+		{" some string", "someString"},
+		{"JSONData", "jsonData"},
+		{"userID", "userID"},
+		{"userJSONData", "userJSONData"},
+		{"CONSTANT_CASE", "constantCase"},
 	}
 	for _, i := range cases {
 		in := i[0]
@@ -58,113 +94,7 @@ func TestToCamel(t *testing.T) {
 }
 
 func BenchmarkToCamel(b *testing.B) {
-	benchmarkCamelTest(b, toCamel)
-}
-
-func toLowerCamel(tb testing.TB) {
-	cases := [][]string{
-		{"foo-bar", "fooBar"},
-		{"TestCase", "testCase"},
-		{"", ""},
-		{"AnyKind of_string", "anyKindOfString"},
-		{"AnyKind.of-string", "anyKindOfString"},
-		{"ID", "id"},
-		{"some string", "someString"},
-		{" some string", "someString"},
-		{"CONSTANT_CASE", "constantCase"},
-	}
-	for _, i := range cases {
-		in := i[0]
-		out := i[1]
-		result := ToLowerCamel(in)
-		if result != out {
-			tb.Errorf("%q (%q != %q)", in, result, out)
-		}
-	}
-}
-
-func TestToLowerCamel(t *testing.T) {
-	toLowerCamel(t)
-}
-
-func TestCustomAcronymsToCamel(t *testing.T) {
-	tests := []struct {
-		name         string
-		acronymKey   string
-		acronymValue string
-		expected     string
-	}{
-		{
-			name:         "API Custom Acronym",
-			acronymKey:   "API",
-			acronymValue: "api",
-			expected:     "Api",
-		},
-		{
-			name:         "ABCDACME Custom Acroynm",
-			acronymKey:   "ABCDACME",
-			acronymValue: "AbcdAcme",
-			expected:     "AbcdAcme",
-		},
-		{
-			name:         "PostgreSQL Custom Acronym",
-			acronymKey:   "PostgreSQL",
-			acronymValue: "PostgreSQL",
-			expected:     "PostgreSQL",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ConfigureAcronym(test.acronymKey, test.acronymValue)
-			if result := ToCamel(test.acronymKey); result != test.expected {
-				t.Errorf("expected custom acronym result %s, got %s", test.expected, result)
-			}
-		})
-	}
-}
-
-func TestCustomAcronymsToLowerCamel(t *testing.T) {
-	tests := []struct {
-		name         string
-		acronymKey   string
-		acronymValue string
-		expected     string
-	}{
-		{
-			name:         "API Custom Acronym",
-			acronymKey:   "API",
-			acronymValue: "api",
-			expected:     "api",
-		},
-		{
-			name:         "ABCDACME Custom Acroynm",
-			acronymKey:   "ABCDACME",
-			acronymValue: "AbcdAcme",
-			expected:     "abcdAcme",
-		},
-		{
-			name:         "PostgreSQL Custom Acronym",
-			acronymKey:   "PostgreSQL",
-			acronymValue: "PostgreSQL",
-			expected:     "postgreSQL",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ConfigureAcronym(test.acronymKey, test.acronymValue)
-			if result := ToLowerCamel(test.acronymKey); result != test.expected {
-				t.Errorf("expected custom acronym result %s, got %s", test.expected, result)
-			}
-		})
-	}
-}
-
-func BenchmarkToLowerCamel(b *testing.B) {
-	benchmarkCamelTest(b, toLowerCamel)
-}
-
-func benchmarkCamelTest(b *testing.B, fn func(testing.TB)) {
 	for n := 0; n < b.N; n++ {
-		fn(b)
+		toCamel(b)
 	}
 }
