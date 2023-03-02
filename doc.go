@@ -7,6 +7,6 @@
 //   | ToScreamingKebab(s)             | ANY-KIND-OF-STRING |
 //   | ToDelimited(s, '.')             | any.kind.of.string |
 //   | ToScreamingDelimited(s, '.')    | ANY.KIND.OF.STRING |
-//   | ToCamel(s)                      | AnyKindOfString    |
-//   | ToLowerCamel(s)                 | anyKindOfString    |
+//   | ToPascal(s)                     | AnyKindOfString    |
+//   | ToCamel(s)                      | anyKindOfString    |
 package strcase
