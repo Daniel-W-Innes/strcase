@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2015 Ian Coleman
  * Copyright (c) 2018 Ma_124, <github.com/Ma124>
+ * Copyright (c) 2023 Daniel Innes
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +62,7 @@ func toCamelInitCase(s string, initCase bool) string {
 		} else if i == 0 {
 			if isUpper {
 				r = unicode.ToLower(r)
-			}else {
+			} else {
 				firstWordAcronymException = false
 			}
 		} else if (allCaps || firstWordAcronymException) && isUpper && prevIsUpper {
